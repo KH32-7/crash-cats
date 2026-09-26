@@ -5,7 +5,7 @@ interface ThreeGameDiagnostics {
   screen: string;
   ready: boolean;
   battle: { time: number; over: boolean; winner: number | null; hp: [number, number]; suddenDeath: boolean; x: [number, number] } | null;
-  online: { status: string; online: number; phase: string | null };
+  online: { status: string; online: number; phase: string | null; mode: string; roomCode: string | null; score: [number, number] | null };
   profile: { trophies: number; coins: number; crates: number };
   renderer: { calls: number; triangles: number; geometries: number; textures: number };
   canvas: { clientWidth: number; clientHeight: number; width: number; height: number; dpr: number };

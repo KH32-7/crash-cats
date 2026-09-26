@@ -20,9 +20,8 @@ import type {
   Side,
 } from './AppApi';
 import { makeBot } from './bots';
-import { Net, serverUrl } from './Net';
-
-const NO_SERVER_MESSAGE = '이 웹 버전(GitHub Pages)에는 실시간 대전 서버가 없어요. 빠른 배틀(봇 상대)과 로컬 2P로 즐겨 주세요!';
+import { Net, serverUrl, type NetLike } from './Net';
+import { P2PNet } from './P2PNet';
 import { AVATARS, Store, type AvatarId, type BattleReward, type SlotKind } from './Store';
 
 type Listener<K extends keyof AppEvents> = (payload: AppEvents[K]) => void;
@@ -57,10 +56,11 @@ export class App implements AppApi {
   private readonly renderer: THREE.WebGLRenderer;
   private garageView!: GarageView;
   private battleView!: BattleView;
-  private readonly net = new Net();
+  /** ws server when one is reachable/configured, otherwise serverless P2P rooms (GitHub Pages). */
+  private readonly net: NetLike = serverUrl() ? new Net() : new P2PNet();
   private currentScreen: Screen = 'home';
   private readonly listeners = new Map<keyof AppEvents, Set<Listener<keyof AppEvents>>>();
-  private onlineState: OnlineState = { status: 'offline', online: 0 };
+  private onlineState: OnlineState = { status: 'offline', online: 0, mode: serverUrl() ? 'server' : 'p2p' };
   private garageOverride: CarBuild | null = null;
   private battle: CurrentBattle | null = null;
   private pendingRound: { result?: Extract<ServerMsg, { t: 'roundResult' }>; end?: Extract<ServerMsg, { t: 'matchEnd' }>; at: number } | null = null;
@@ -344,10 +344,6 @@ export class App implements AppApi {
   readonly online = {
     getState: () => this.onlineState,
     connect: () => {
-      if (!serverUrl()) {
-        this.setOnline({ status: 'offline', error: NO_SERVER_MESSAGE });
-        return;
-      }
       this.net.connect(() => ({ t: 'hello', playerId: this.store.get().playerId, card: this.myCard(), build: this.store.build() }));
     },
     queue: () => {
@@ -540,7 +536,7 @@ export class App implements AppApi {
       battle: snap
         ? { time: snap.time, over: snap.over, winner: snap.winner, hp: [snap.cars[0].hp, snap.cars[1].hp], suddenDeath: snap.suddenDeath, x: [snap.cars[0].chassis.x, snap.cars[1].chassis.x] }
         : null,
-      online: { status: this.onlineState.status, online: this.onlineState.online, phase: this.onlineState.match?.phase ?? null },
+      online: { status: this.onlineState.status, online: this.onlineState.online, phase: this.onlineState.match?.phase ?? null, mode: this.onlineState.mode ?? 'server', roomCode: this.onlineState.roomCode ?? null, score: this.onlineState.match?.score ?? null },
       profile: { trophies: this.store.get().trophies, coins: this.store.get().coins, crates: this.store.get().crates.length },
       renderer: { calls: info.render.calls, triangles: info.render.triangles, geometries: info.memory.geometries, textures: info.memory.textures },
       canvas: { clientWidth: this.canvas.clientWidth, clientHeight: this.canvas.clientHeight, width: this.canvas.width, height: this.canvas.height, dpr: this.renderer.getPixelRatio() },

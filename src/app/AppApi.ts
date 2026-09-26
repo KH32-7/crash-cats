@@ -81,6 +81,8 @@ export interface OnlineMatchState {
 
 export interface OnlineState {
   status: 'offline' | 'connecting' | 'idle' | 'queued' | 'room' | 'match';
+  /** 'server' = ws server (matchmaking + rooms); 'p2p' = serverless WebRTC rooms only (static hosting). */
+  mode?: 'server' | 'p2p';
   online: number;
   roomCode?: string;
   error?: string;

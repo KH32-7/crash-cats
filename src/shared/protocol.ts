@@ -41,3 +41,11 @@ export type ServerMsg =
   | { t: 'emote'; from: CarIndex; id: number };
 
 export const WS_PATH = '/ws';
+
+/** Sanitize an untrusted player card (server + P2P host). */
+export function cleanCard(card: Partial<PlayerCard> | undefined): PlayerCard {
+  const name = String(card?.name ?? '냥이').replace(/[<>]/g, '').slice(0, 12) || '냥이';
+  const avatar = /^av_[a-z]+$/.test(String(card?.avatar)) ? String(card?.avatar) : 'av_player';
+  const trophies = Math.max(0, Math.min(99999, Math.floor(Number(card?.trophies) || 0)));
+  return { name, avatar, trophies };
+}

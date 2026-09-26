@@ -3,12 +3,24 @@
   "a": {
     "status": "match",
     "online": 2,
-    "phase": "done"
+    "phase": "done",
+    "mode": "server",
+    "roomCode": null,
+    "score": [
+      2,
+      1
+    ]
   },
   "b": {
     "status": "match",
     "online": 2,
-    "phase": "done"
+    "phase": "done",
+    "mode": "server",
+    "roomCode": null,
+    "score": [
+      2,
+      1
+    ]
   },
   "trophies": [
     35,

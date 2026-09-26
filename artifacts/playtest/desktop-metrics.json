@@ -1,11 +1,11 @@
 {
   "project": "desktop",
   "hpAt4s": [
-    36,
-    36
+    88,
+    75
   ],
   "winner": 0,
-  "battleTime": 8.083333333333334,
+  "battleTime": 14.1,
   "trophies": [
     0,
     28
@@ -19,9 +19,9 @@
     3
   ],
   "renderer": {
-    "calls": 66,
-    "triangles": 51578,
-    "geometries": 100,
+    "calls": 56,
+    "triangles": 49890,
+    "geometries": 73,
     "textures": 20
   },
   "errors": []

@@ -418,11 +418,13 @@ export class BattleScreen implements ScreenView {
           this.ctx.go('home');
         }),
         btn(
-          '다시 매칭',
+          this.ctx.app.online.getState().mode === 'p2p' ? '새 방 만들기' : '다시 매칭',
           'btn-gold',
           () => {
+            const p2p = this.ctx.app.online.getState().mode === 'p2p';
             this.ctx.app.online.leave();
-            this.ctx.app.online.queue();
+            if (p2p) this.ctx.app.online.createRoom();
+            else this.ctx.app.online.queue();
             this.ctx.go('online');
           },
           'refresh',

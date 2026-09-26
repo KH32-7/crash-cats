@@ -1,0 +1,27 @@
+{
+  "base": "/?p2p",
+  "code": "TLDD",
+  "rounds": 2,
+  "host": {
+    "status": "match",
+    "online": 0,
+    "phase": "done",
+    "mode": "p2p",
+    "roomCode": null,
+    "score": [
+      0,
+      2
+    ]
+  },
+  "guest": {
+    "status": "match",
+    "online": 0,
+    "phase": "done",
+    "mode": "p2p",
+    "roomCode": null,
+    "score": [
+      0,
+      2
+    ]
+  }
+}

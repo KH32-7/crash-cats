@@ -12,18 +12,11 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { WebSocketServer, WebSocket } from 'ws';
-import { Battle, initPhysics } from '../src/shared/sim/Battle';
-import { ARENAS, SIM, type CarIndex } from '../src/shared/sim/types';
+import { initPhysics } from '../src/shared/sim/Battle';
+import type { CarIndex } from '../src/shared/sim/types';
 import { sanitizeBuild, type CarBuild } from '../src/shared/parts';
-import {
-  BUILD_PHASE_NEXT_SECONDS,
-  BUILD_PHASE_SECONDS,
-  ROUNDS_TO_WIN,
-  WS_PATH,
-  type ClientMsg,
-  type PlayerCard,
-  type ServerMsg,
-} from '../src/shared/protocol';
+import { cleanCard, WS_PATH, type ClientMsg, type PlayerCard, type ServerMsg } from '../src/shared/protocol';
+import { MatchCore } from '../src/shared/match';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT ?? 5189);
@@ -39,7 +32,7 @@ interface Client {
   build: CarBuild;
   queued: boolean;
   roomCode: string | null;
-  match: Match | null;
+  match: { core: MatchCore; index: CarIndex } | null;
   alive: boolean;
 }
 
@@ -48,20 +41,6 @@ interface Ghost {
   card: PlayerCard;
   build: CarBuild;
   updated: number;
-}
-
-interface Match {
-  id: string;
-  players: [Client, Client];
-  round: number;
-  score: [number, number];
-  phase: 'build' | 'battle' | 'intermission' | 'done';
-  ready: [boolean, boolean];
-  builds: [CarBuild, CarBuild];
-  timer: NodeJS.Timeout | null;
-  watched: [boolean, boolean];
-  serverResult: { winner: CarIndex | -1; hash: string } | null;
-  clientHashes: [string | null, string | null];
 }
 
 const clients = new Set<Client>();
@@ -78,13 +57,6 @@ function send(c: Client, msg: ServerMsg): void {
 function broadcastOnline(): void {
   const online = [...clients].filter((c) => c.playerId).length;
   for (const c of clients) send(c, { t: 'online', online });
-}
-
-function cleanCard(card: Partial<PlayerCard> | undefined): PlayerCard {
-  const name = String(card?.name ?? '냥이').replace(/[<>]/g, '').slice(0, 12) || '냥이';
-  const avatar = /^av_[a-z]+$/.test(String(card?.avatar)) ? String(card?.avatar) : 'av_player';
-  const trophies = Math.max(0, Math.min(99999, Math.floor(Number(card?.trophies) || 0)));
-  return { name, avatar, trophies };
 }
 
 function randomCode(): string {
@@ -155,109 +127,32 @@ function startMatch(a: Client, b: Client): void {
   removeFromQueue(b);
   closeRoom(a);
   closeRoom(b);
-  const match: Match = {
-    id: Math.random().toString(36).slice(2, 10),
-    players: [a, b],
-    round: 0,
-    score: [0, 0],
-    phase: 'build',
-    ready: [false, false],
-    builds: [a.build, b.build],
-    timer: null,
-    watched: [false, false],
-    serverResult: null,
-    clientHashes: [null, null],
-  };
-  a.match = match;
-  b.match = match;
-  send(a, { t: 'matchFound', matchId: match.id, you: 0, opponent: b.card, opponentBuild: b.build, roundsToWin: ROUNDS_TO_WIN });
-  send(b, { t: 'matchFound', matchId: match.id, you: 1, opponent: a.card, opponentBuild: a.build, roundsToWin: ROUNDS_TO_WIN });
-  console.log(`match ${match.id}: ${a.card.name} vs ${b.card.name}`);
-  beginBuildPhase(match);
-}
-
-function beginBuildPhase(match: Match): void {
-  match.round += 1;
-  match.phase = 'build';
-  match.ready = [false, false];
-  match.watched = [false, false];
-  match.clientHashes = [null, null];
-  match.serverResult = null;
-  const seconds = match.round === 1 ? BUILD_PHASE_SECONDS : BUILD_PHASE_NEXT_SECONDS;
-  match.players.forEach((p, i) =>
-    send(p, { t: 'buildPhase', round: match.round, seconds, opponentBuild: match.builds[1 - i], score: match.score }),
+  const pair: [Client, Client] = [a, b];
+  const core = new MatchCore(
+    [
+      { card: a.card, build: a.build, send: (m) => send(a, m) },
+      { card: b.card, build: b.build, send: (m) => send(b, m) },
+    ],
+    {
+      log: (line) => console.log(line),
+      onBuild: (i, build) => {
+        pair[i].build = build;
+        rememberGhost(pair[i]);
+      },
+      onEnd: () => {
+        for (const p of pair) if (p.match?.core === core) p.match = null;
+      },
+    },
   );
-  clearTimer(match);
-  match.timer = setTimeout(() => startRound(match), (seconds + 1) * 1000);
-}
-
-function clearTimer(match: Match): void {
-  if (match.timer) clearTimeout(match.timer);
-  match.timer = null;
-}
-
-function startRound(match: Match): void {
-  if (match.phase !== 'build') return;
-  clearTimer(match);
-  match.phase = 'battle';
-  const seed = (Math.random() * 0xffffffff) >>> 0;
-  const arena = ARENAS[seed % ARENAS.length];
-  const builds: [CarBuild, CarBuild] = [sanitizeBuild(match.builds[0]), sanitizeBuild(match.builds[1])];
-  // Authoritative re-simulation (takes a few ms).
-  const battle = new Battle({ seed, builds, arena });
-  const result = battle.runToEnd();
-  battle.free();
-  match.serverResult = { winner: result.winner, hash: result.hash };
-  for (const p of match.players) send(p, { t: 'roundStart', round: match.round, seed, arena, builds });
-  // Clients report when they finished watching; cap the wait (countdown + fight + outro).
-  const watchMs = (3 + result.ticks * SIM.dt + 8) * 1000;
-  match.timer = setTimeout(() => finishRound(match), watchMs + 15000);
-}
-
-function finishRound(match: Match): void {
-  if (match.phase !== 'battle' || !match.serverResult) return;
-  clearTimer(match);
-  const { winner, hash } = match.serverResult;
-  const mismatch = match.clientHashes.some((h) => h !== null && h !== hash);
-  if (mismatch) console.warn(`match ${match.id} round ${match.round}: client hash mismatch`, match.clientHashes, hash);
-  if (winner !== -1) match.score[winner] += 1;
-  for (const p of match.players) send(p, { t: 'roundResult', round: match.round, winner, score: match.score, mismatch });
-  const champion = match.score[0] >= ROUNDS_TO_WIN ? 0 : match.score[1] >= ROUNDS_TO_WIN ? 1 : null;
-  if (champion !== null || match.round >= 5) {
-    const w: CarIndex | -1 = champion ?? (match.score[0] === match.score[1] ? -1 : match.score[0] > match.score[1] ? 0 : 1);
-    endMatch(match, w, 'score');
-    return;
-  }
-  // Intermission: no ready/roundWatched is accepted until the next build phase.
-  match.phase = 'intermission';
-  match.ready = [false, false];
-  match.watched = [false, false];
-  match.clientHashes = [null, null];
-  match.timer = setTimeout(() => beginBuildPhase(match), 3500);
-}
-
-function endMatch(match: Match, winner: CarIndex | -1, reason: 'score' | 'forfeit', leaver?: Client): void {
-  clearTimer(match);
-  match.phase = 'done';
-  match.players.forEach((p, i) => {
-    const delta = winner === -1 ? 0 : winner === i ? 35 : -15;
-    // The leaver already settled the loss locally; never tell it anything it could misread as a win.
-    if (p !== leaver) send(p, { t: 'matchEnd', winner, score: match.score, trophyDelta: delta, reason });
-    if (p.match === match) p.match = null;
-  });
-  console.log(`match ${match.id} ended: winner=${winner} (${reason})`);
+  a.match = { core, index: 0 };
+  b.match = { core, index: 1 };
+  core.start();
 }
 
 function leaveMatch(c: Client): void {
-  const match = c.match;
-  if (!match || match.phase === 'done') {
-    c.match = null;
-    return;
-  }
-  const i = match.players.indexOf(c) as CarIndex;
-  const other = match.players[1 - i];
-  send(other, { t: 'opponentLeft' });
-  endMatch(match, (1 - i) as CarIndex, 'forfeit', c);
+  const m = c.match;
+  c.match = null;
+  if (m && !m.core.done) m.core.leave(m.index);
 }
 
 // ------------------------------------------------------------------ messages
@@ -276,11 +171,7 @@ function handle(c: Client, msg: ClientMsg): void {
     }
     case 'updateBuild': {
       c.build = sanitizeBuild(msg.build);
-      const m = c.match;
-      if (m && m.phase === 'build') {
-        const i = m.players.indexOf(c);
-        if (i >= 0 && !m.ready[i]) m.builds[i] = c.build;
-      }
+      if (c.match) c.match.core.handle(c.match.index, msg);
       rememberGhost(c);
       break;
     }
@@ -322,37 +213,14 @@ function handle(c: Client, msg: ClientMsg): void {
       startMatch(host, c);
       break;
     }
-    case 'ready': {
-      const match = c.match;
-      if (!match || match.phase !== 'build') return;
-      const i = match.players.indexOf(c) as CarIndex;
-      match.builds[i] = sanitizeBuild(msg.build);
-      c.build = match.builds[i];
-      rememberGhost(c);
-      match.ready[i] = true;
-      send(match.players[1 - i], { t: 'opponentReady' });
-      if (match.ready[0] && match.ready[1]) startRound(match);
+    case 'ready':
+    case 'roundWatched':
+    case 'emote':
+      if (c.match) c.match.core.handle(c.match.index, msg);
       break;
-    }
-    case 'roundWatched': {
-      const match = c.match;
-      if (!match || match.phase !== 'battle' || msg.round !== match.round) return;
-      const i = match.players.indexOf(c) as CarIndex;
-      match.watched[i] = true;
-      match.clientHashes[i] = String(msg.hash).slice(0, 16);
-      if (match.watched[0] && match.watched[1]) finishRound(match);
-      break;
-    }
     case 'requestGhost': {
       const g = pickGhost(c, Number(msg.trophies) || 0);
       send(c, g ? { t: 'ghost', found: true, card: g.card, build: g.build } : { t: 'ghost', found: false });
-      break;
-    }
-    case 'emote': {
-      const match = c.match;
-      if (!match) return;
-      const i = match.players.indexOf(c) as CarIndex;
-      send(match.players[1 - i], { t: 'emote', from: i, id: Math.max(0, Math.min(7, Math.floor(msg.id))) });
       break;
     }
     case 'leave':

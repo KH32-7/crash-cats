@@ -101,7 +101,10 @@ export class OnlineScreen implements ScreenView {
   }
 
   private render(st: OnlineState): void {
-    setText(this.onlineCount, st.status === 'offline' || st.status === 'connecting' ? '' : `${fmt(st.online)}명 접속 중`);
+    setText(
+      this.onlineCount,
+      st.mode === 'p2p' ? 'P2P 방 대전' : st.status === 'offline' || st.status === 'connecting' ? '' : `${fmt(st.online)}명 접속 중`,
+    );
     this.onlineCount.hidden = !this.onlineCount.textContent;
     const key = this.stateKey(st);
     if (key === this.key) return;
@@ -213,7 +216,9 @@ export class OnlineScreen implements ScreenView {
         'div',
         { class: 'on-idle' },
         h('p', { class: 'on-rules' }, icon('flag'), '3판 2선승 · 라운드마다 상대 차를 보고 내 차를 고칠 수 있어요'),
-        h(
+        this.online.getState().mode === 'p2p'
+          ? h('p', { class: 'on-rules' }, icon('globe'), '방을 만들고 친구에게 4글자 코드를 알려 주세요. 친구는 코드를 입력해 참가해요.')
+          : h(
           'button',
           {
             class: 'btn btn-gold btn-xl',
@@ -486,12 +491,14 @@ export class OnlineScreen implements ScreenView {
               type: 'button',
               onClick: () => {
                 this.ctx.sfx('whoosh');
+                const p2p = this.online.getState().mode === 'p2p';
                 this.online.leave();
-                this.online.queue();
+                if (p2p) this.online.createRoom();
+                else this.online.queue();
               },
             },
             icon('refresh'),
-            '다시 매칭',
+            this.online.getState().mode === 'p2p' ? '새 방 만들기' : '다시 매칭',
           ),
         ),
       ),

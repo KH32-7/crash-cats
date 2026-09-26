@@ -8,6 +8,7 @@ type Handler = (msg: ServerMsg) => void;
  * hosts that cannot run one (github.io) — there the game stays in offline mode (bots).
  */
 export function serverUrl(): string {
+  if (new URLSearchParams(location.search).has('p2p')) return ''; // test/debug: force P2P
   const configured = import.meta.env.VITE_WS_URL as string | undefined;
   if (configured) return configured;
   if (location.hostname.endsWith('github.io')) return '';
@@ -16,8 +17,20 @@ export function serverUrl(): string {
 }
 type StatusHandler = (status: 'connecting' | 'open' | 'closed') => void;
 
+/** Transport used by the App: the ws server (`Net`) or serverless WebRTC rooms (`P2PNet`). */
+export interface NetLike {
+  readonly mode: 'server' | 'p2p';
+  readonly connected: boolean;
+  connect(hello: () => ClientMsg): void;
+  send(msg: ClientMsg): boolean;
+  on(handler: Handler): () => void;
+  onStatus(handler: StatusHandler): () => void;
+  waitFor<T extends ServerMsg>(pred: (m: ServerMsg) => m is T, timeoutMs: number): Promise<T | null>;
+}
+
 /** Auto-reconnecting WebSocket client for the CRASH CATS server. */
-export class Net {
+export class Net implements NetLike {
+  readonly mode = 'server' as const;
   private ws: WebSocket | null = null;
   private readonly handlers = new Set<Handler>();
   private readonly statusHandlers = new Set<StatusHandler>();
