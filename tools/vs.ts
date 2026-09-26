@@ -1,0 +1,14 @@
+import { initPhysics, Battle } from '../src/shared/sim/Battle';
+import { defaultBuild, type CarBuild } from '../src/shared/parts';
+import { makeBot } from '../src/app/bots';
+await initPhysics();
+const blade = defaultBuild();
+const drill: CarBuild = { ...defaultBuild(), weapons: [{ id: 'drill', level: 1 }, null] };
+const run = (a: CarBuild, b: CarBuild) => { const w = [0, 0, 0]; for (let s = 1; s <= 30; s++) { const r = new Battle({ seed: s, builds: [a, b], arena: 'skate' }).runToEnd(); w[r.winner === -1 ? 2 : r.winner]++; } return w; };
+console.log('blade(L) vs drill(R)', run(blade, drill));
+console.log('drill(L) vs blade(R)', run(drill, blade));
+console.log('blade(L) vs blade(R)', run(blade, blade));
+const bot = makeBot(0, 7919);
+console.log('bot0', JSON.stringify(bot.build));
+console.log('starter vs bot0', run(blade, bot.build));
+console.log('starter vs bot0 no paint', run(blade, { ...bot.build, paint: undefined }));

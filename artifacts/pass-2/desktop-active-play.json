@@ -1,0 +1,120 @@
+{
+  "url": "http://127.0.0.1:5288",
+  "mode": "desktop",
+  "state": "active-play",
+  "requestedState": "active-play",
+  "appliedState": "active-play",
+  "runId": "pass-2",
+  "seed": 7,
+  "screenshotPath": "artifacts\\pass-2\\desktop-active-play.png",
+  "gpu": {
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 890M Graphics (0x0000150E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "vendor": "Google Inc. (AMD)",
+    "softwareRendered": false
+  },
+  "result": {
+    "ok": true,
+    "reason": "nonblank",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 720
+    },
+    "drawingBuffer": {
+      "width": 1280,
+      "height": 720
+    },
+    "alphaPixels": 4096,
+    "variance": 243,
+    "colorBuckets": 514,
+    "metrics": {
+      "colorBuckets": 693,
+      "colorEntropyBits": 7.44,
+      "edgeDensity": 0.481,
+      "luminance": {
+        "mean": 156.9,
+        "p5": 53.4,
+        "p95": 216.8,
+        "contrast": 163.3
+      },
+      "dominantColorShare": 0.076,
+      "nonBackgroundShare": 0.924
+    },
+    "renderBudget": {
+      "tier": "desktop",
+      "note": "starting-point budget; adjust per game and document overrides",
+      "rows": [
+        {
+          "metric": "calls",
+          "actual": 77,
+          "limit": 300,
+          "ok": true
+        },
+        {
+          "metric": "triangles",
+          "actual": 68250,
+          "limit": 750000,
+          "ok": true
+        },
+        {
+          "metric": "geometries",
+          "actual": 104,
+          "limit": 300,
+          "ok": true
+        },
+        {
+          "metric": "textures",
+          "actual": 22,
+          "limit": 60,
+          "ok": true
+        }
+      ],
+      "withinBudget": true
+    },
+    "diagnostics": {
+      "frame": 784,
+      "screen": "battle",
+      "ready": true,
+      "battle": {
+        "time": 2.6,
+        "over": false,
+        "winner": null,
+        "hp": [
+          461,
+          448
+        ],
+        "suddenDeath": false,
+        "x": [
+          -0.7942582368850708,
+          1.907029151916504
+        ]
+      },
+      "online": {
+        "status": "idle",
+        "online": 1,
+        "phase": null
+      },
+      "profile": {
+        "trophies": 0,
+        "coins": 150,
+        "crates": 2
+      },
+      "renderer": {
+        "calls": 77,
+        "triangles": 68250,
+        "geometries": 104,
+        "textures": 22
+      },
+      "canvas": {
+        "clientWidth": 1280,
+        "clientHeight": 720,
+        "width": 1280,
+        "height": 720,
+        "dpr": 1
+      }
+    }
+  },
+  "consoleErrors": [],
+  "pageErrors": []
+}

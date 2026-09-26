@@ -1,0 +1,120 @@
+{
+  "url": "http://127.0.0.1:5288",
+  "mode": "desktop",
+  "state": "sudden-death",
+  "requestedState": "sudden-death",
+  "appliedState": "sudden-death",
+  "runId": "pass-2",
+  "seed": 7,
+  "screenshotPath": "artifacts\\pass-2\\desktop-sudden-death.png",
+  "gpu": {
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 890M Graphics (0x0000150E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "vendor": "Google Inc. (AMD)",
+    "softwareRendered": false
+  },
+  "result": {
+    "ok": true,
+    "reason": "nonblank",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 720
+    },
+    "drawingBuffer": {
+      "width": 1280,
+      "height": 720
+    },
+    "alphaPixels": 4096,
+    "variance": 247,
+    "colorBuckets": 348,
+    "metrics": {
+      "colorBuckets": 471,
+      "colorEntropyBits": 6.17,
+      "edgeDensity": 0.417,
+      "luminance": {
+        "mean": 161.3,
+        "p5": 65.4,
+        "p95": 209.6,
+        "contrast": 144.2
+      },
+      "dominantColorShare": 0.266,
+      "nonBackgroundShare": 0.734
+    },
+    "renderBudget": {
+      "tier": "desktop",
+      "note": "starting-point budget; adjust per game and document overrides",
+      "rows": [
+        {
+          "metric": "calls",
+          "actual": 75,
+          "limit": 300,
+          "ok": true
+        },
+        {
+          "metric": "triangles",
+          "actual": 86258,
+          "limit": 750000,
+          "ok": true
+        },
+        {
+          "metric": "geometries",
+          "actual": 88,
+          "limit": 300,
+          "ok": true
+        },
+        {
+          "metric": "textures",
+          "actual": 25,
+          "limit": 60,
+          "ok": true
+        }
+      ],
+      "withinBudget": true
+    },
+    "diagnostics": {
+      "frame": 807,
+      "screen": "battle",
+      "ready": true,
+      "battle": {
+        "time": 34.5,
+        "over": false,
+        "winner": null,
+        "hp": [
+          317,
+          317
+        ],
+        "suddenDeath": true,
+        "x": [
+          -2.0669617652893066,
+          -0.2903593182563782
+        ]
+      },
+      "online": {
+        "status": "idle",
+        "online": 1,
+        "phase": null
+      },
+      "profile": {
+        "trophies": 0,
+        "coins": 150,
+        "crates": 2
+      },
+      "renderer": {
+        "calls": 75,
+        "triangles": 86258,
+        "geometries": 88,
+        "textures": 25
+      },
+      "canvas": {
+        "clientWidth": 1280,
+        "clientHeight": 720,
+        "width": 1280,
+        "height": 720,
+        "dpr": 1
+      }
+    }
+  },
+  "consoleErrors": [],
+  "pageErrors": []
+}

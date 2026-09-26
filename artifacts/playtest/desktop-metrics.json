@@ -1,0 +1,28 @@
+{
+  "project": "desktop",
+  "hpAt4s": [
+    36,
+    36
+  ],
+  "winner": 0,
+  "battleTime": 8.083333333333334,
+  "trophies": [
+    0,
+    28
+  ],
+  "coins": [
+    150,
+    180
+  ],
+  "crates": [
+    2,
+    3
+  ],
+  "renderer": {
+    "calls": 66,
+    "triangles": 51578,
+    "geometries": 100,
+    "textures": 20
+  },
+  "errors": []
+}

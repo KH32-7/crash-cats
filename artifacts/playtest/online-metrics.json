@@ -1,0 +1,17 @@
+{
+  "rounds": 3,
+  "a": {
+    "status": "match",
+    "online": 2,
+    "phase": "done"
+  },
+  "b": {
+    "status": "match",
+    "online": 2,
+    "phase": "done"
+  },
+  "trophies": [
+    35,
+    0
+  ]
+}

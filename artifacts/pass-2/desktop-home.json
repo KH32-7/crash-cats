@@ -1,0 +1,107 @@
+{
+  "url": "http://127.0.0.1:5288",
+  "mode": "desktop",
+  "state": "home",
+  "requestedState": "home",
+  "appliedState": "home",
+  "runId": "pass-2",
+  "seed": 7,
+  "screenshotPath": "artifacts\\pass-2\\desktop-home.png",
+  "gpu": {
+    "renderer": "ANGLE (AMD, AMD Radeon(TM) 890M Graphics (0x0000150E) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "vendor": "Google Inc. (AMD)",
+    "softwareRendered": false
+  },
+  "result": {
+    "ok": true,
+    "reason": "nonblank",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 720
+    },
+    "drawingBuffer": {
+      "width": 1280,
+      "height": 720
+    },
+    "alphaPixels": 4096,
+    "variance": 255,
+    "colorBuckets": 347,
+    "metrics": {
+      "colorBuckets": 482,
+      "colorEntropyBits": 6.86,
+      "edgeDensity": 0.413,
+      "luminance": {
+        "mean": 103.2,
+        "p5": 27.4,
+        "p95": 219.7,
+        "contrast": 192.3
+      },
+      "dominantColorShare": 0.047,
+      "nonBackgroundShare": 0.953
+    },
+    "renderBudget": {
+      "tier": "desktop",
+      "note": "starting-point budget; adjust per game and document overrides",
+      "rows": [
+        {
+          "metric": "calls",
+          "actual": 22,
+          "limit": 300,
+          "ok": true
+        },
+        {
+          "metric": "triangles",
+          "actual": 26054,
+          "limit": 750000,
+          "ok": true
+        },
+        {
+          "metric": "geometries",
+          "actual": 18,
+          "limit": 300,
+          "ok": true
+        },
+        {
+          "metric": "textures",
+          "actual": 13,
+          "limit": 60,
+          "ok": true
+        }
+      ],
+      "withinBudget": true
+    },
+    "diagnostics": {
+      "frame": 810,
+      "screen": "home",
+      "ready": true,
+      "battle": null,
+      "online": {
+        "status": "idle",
+        "online": 1,
+        "phase": null
+      },
+      "profile": {
+        "trophies": 0,
+        "coins": 150,
+        "crates": 2
+      },
+      "renderer": {
+        "calls": 22,
+        "triangles": 26054,
+        "geometries": 18,
+        "textures": 13
+      },
+      "canvas": {
+        "clientWidth": 1280,
+        "clientHeight": 720,
+        "width": 1280,
+        "height": 720,
+        "dpr": 1
+      }
+    }
+  },
+  "consoleErrors": [],
+  "pageErrors": []
+}

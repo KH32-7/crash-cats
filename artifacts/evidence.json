@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "runId": "pass-2",
+  "captures": [
+    {
+      "mode": "desktop",
+      "state": "active-play",
+      "report": "artifacts/pass-2/desktop-active-play.json"
+    },
+    {
+      "mode": "mobile",
+      "state": "active-play",
+      "report": "artifacts/pass-2/mobile-active-play.json"
+    },
+    {
+      "mode": "desktop",
+      "state": "sudden-death",
+      "report": "artifacts/pass-2/desktop-sudden-death.json"
+    },
+    {
+      "mode": "desktop",
+      "state": "home",
+      "report": "artifacts/pass-2/desktop-home.json"
+    },
+    {
+      "mode": "mobile",
+      "state": "garage",
+      "report": "artifacts/pass-2/mobile-garage.json"
+    },
+    {
+      "mode": "mobile",
+      "state": "sudden-death",
+      "report": "artifacts/pass-2/mobile-sudden-death.json"
+    }
+  ],
+  "artifacts": [
+    "public/assets/models/cat.glb",
+    "public/assets/models/dozer.glb",
+    "artifacts/playtest/desktop-metrics.json",
+    "artifacts/playtest/mobile-metrics.json",
+    "artifacts/playtest/online-metrics.json",
+    "artifacts/playtest/online-battle-a.png"
+  ]
+}

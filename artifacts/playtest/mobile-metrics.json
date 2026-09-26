@@ -1,0 +1,28 @@
+{
+  "project": "mobile",
+  "hpAt4s": [
+    62,
+    88
+  ],
+  "winner": 1,
+  "battleTime": 15.166666666666666,
+  "trophies": [
+    0,
+    0
+  ],
+  "coins": [
+    150,
+    158
+  ],
+  "crates": [
+    2,
+    2
+  ],
+  "renderer": {
+    "calls": 49,
+    "triangles": 49830,
+    "geometries": 63,
+    "textures": 20
+  },
+  "errors": []
+}

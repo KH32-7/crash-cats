@@ -1,0 +1,13 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+server/data/
+*.log
+artifacts/*
+!artifacts/design.md
+!artifacts/game-progress.md
+!artifacts/final-evidence.md
+!artifacts/evidence.json
+!artifacts/pass-2/
+!artifacts/playtest/
